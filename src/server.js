@@ -38,8 +38,8 @@ app.use(express.static(__dirname + '/public'));
 
 //corriendo el serrvidor
 async function main(){
-    await http.listen(4000, () =>{
-        console.log('Servidor backend corriendo en el puerto 4000.')
+    await http.listen(3000, () =>{
+        console.log('Servidor backend corriendo en el puerto 3000.')
     });
 }
 main()
