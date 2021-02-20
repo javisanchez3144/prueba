@@ -386,7 +386,7 @@
                         estado_civil: this.tarea.estado_civil
                     };
                     //console.log(parametros);                   
-                    fetch('http://34.68.235.113:3000/' + id, {
+                    fetch('http://34.68.235.113:3000/tarea/obtener/' + id, {
                         method: 'GET'
                     })
                         .then(res => res.json())
@@ -410,7 +410,7 @@
                 },
                 actualizar: function (id) {
 
-                    fetch('http://34.68.235.113:3000/' + id, {
+                    fetch('http://34.68.235.113:3000/tarea/actualizar/' + id, {
                         method: 'PUT',
                         body: JSON.stringify(this.tarea),
                         headers: {
@@ -436,7 +436,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             //procedimiento borrar
-                            fetch('http://34.68.235.113:3000/' + id, {
+                            fetch('http://34.68.235.113:3000/tarea/eliminar/' + id, {
                                 method: 'DELETE',
                                 headers: {
                                     'Accept': 'application/json',
