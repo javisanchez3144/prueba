@@ -11,7 +11,7 @@ class Tarea {
             resultado.forEach(x=>{
                 i.push({
                     _id: x._id,
-                    fecha_nac: ((JSON.stringify(x.fecha_nac)).split('T')[0]).replace(/["']/g, ''),
+                    
                     cedula: x.cedula,
                     nombre: x.nombre,
                     apellido: x.apellido,
