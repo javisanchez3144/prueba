@@ -15,7 +15,7 @@
   \**************************/
 /***/ (() => {
 
-eval("new Vue({\n  el: '#app2',\n  vuetify: new Vuetify(),\n  data: () => ({\n    items: ['Foo', 'Bar', 'Fizz', 'Buzz']\n  })\n});\n\n//# sourceURL=webpack://prueba/./src/app/index.js?");
+eval("new Vue({\n  el: '#app2',\n  vuetify: new Vuetify(),\n  data: function data() {\n    return {\n      items: ['Foo', 'Bar', 'Fizz', 'Buzz']\n    };\n  }\n});\n\n//# sourceURL=webpack://prueba/./src/app/index.js?");
 
 /***/ })
 

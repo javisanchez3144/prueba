@@ -55,7 +55,8 @@
                                                 tarea.apellido,
                                                 tarea.profesion,
                                                 tarea.hijos,
-                                                tarea.estado_civil)">
+                                                tarea.estado_civil,
+                                                tarea.fecha_nac)">
                                             <v-icon>mdi-pencil</v-icon>
                                         </v-btn>
                                         <v-btn class="error" fab dark small @click="borrar(tarea._id)">
@@ -67,7 +68,9 @@
                                         tarea.apellido,
                                         tarea.profesion,
                                         tarea.hijos,
-                                        tarea.estado_civil,)">
+                                        tarea.estado_civil,
+                                        tarea.fecha_nac,
+                                        edad)">
                                             <v-icon>mdi-format-list-bulleted-square</v-icon>
                                         </v-btn>
                                     </td>
@@ -77,17 +80,20 @@
                     </v-simple-table>
                 </v-card>
                 <!-- Componente de Diálogo para CREAR y EDITAR -->
-                <v-dialog v-model="dialog" max-width="800">
+                <v-dialog v-model="dialog" max-width="900">
                     <v-card>
                         <v-card-title class="purple darken-4 white--text">Ingresar</v-card-title>
                         <v-card-text>
-                            <v-form>
+                            <form @submit.prevent="addTarea" enctype="multipart/form-data">
                                 <v-container>
+
                                     <v-row>
                                         <input v-model="tarea._id" hidden></input>
                                         <v-col cols="12" md="4">
-                                            <v-text-field v-model="tarea.cedula" type="number" min="0"  label="Cedula"
-                                                solo required>
+                                            <v-text-field :rules="organizationRules"
+                                                oninput="validity.valid||(value=value.replace(/\D+/g, ''))"
+                                                v-model="tarea.cedula" type="number" min="0" label="Cedula" solo
+                                                required>
                                             </v-text-field>
                                             </v-text-field>
                                         </v-col>
@@ -118,37 +124,49 @@
                                                 {{tarea.estado_civil}}
                                             </v-select>
                                         </v-col>
-                                        <v-col cols="12" md="4">
-                                            <input type="date" v-model="fecha_nac">
-                                        </v-col>
+                                        <v-menu v-model="menu2" :close-on-content-click="false" :nudge-right="40"
+                                            transition="scale-transition" offset-y min-width="auto">
+                                            <template v-slot:activator="{ on, attrs }">
+                                                <v-text-field v-model="tarea.fecha_nac" label="Picker without buttons"
+                                                    prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on">
+                                                </v-text-field>
+                                            </template>
+                                            <v-date-picker v-model="tarea.fecha_nac" @input="menu2 = false">
+                                            </v-date-picker>
+                                        </v-menu>
 
                                     </v-row>
                                     <v-row>
                                         <v-col cols="12" md="6">
-                                            <v-text-field v-model="tarea.hijos" min="0" label="N# de hijos"
-                                                type="number" solo required>{{tarea.hijos}}</v-text-field>
+                                            <v-text-field v-model="tarea.hijos" min="0"
+                                                oninput="validity.valid||(value=value.replace(/\D+/g, ''))"
+                                                label="N# de hijos" type="number" solo required>{{tarea.hijos}}
+                                            </v-text-field>
                                         </v-col>
                                         <v-col cols="12" md="6">
-                                            <input type="file" @change="obtenerImagen" :rules="rules"  accept="image/png, image/jpeg, image/bmp"
-                                                 prepend-icon="mdi-camera"  label="Imagen">
-                                            <input>
+                                            <input type="file" ref="file" @change="onSelect" multiple>
                                         </v-col>
                                     </v-row>
                                 </v-container>
                         </v-card-text>
-
+                        <p v-if="errors.length">
+                            <b>Por favor, corrija el(los) siguiente(s) error(es):</b>
+                        <ul>
+                            <li v-for="error in errors">{{ error }}</li>
+                        </ul>
+                        </p>
                         <v-card-actions>
                             <template v-if="edit === false">
                                 <v-spacer></v-spacer>
                                 <v-btn @click="dialog=false" color="blue-grey" dark>Cancelar</v-btn>
-                                <v-btn @click="addTarea()" color="purple accent-3" dark>Guardar</v-btn>
+                                <v-btn @click="checkForm()" color="purple accent-3" dark>Guardar</v-btn>
                             </template>
                             <template v-else>
                                 <v-btn @click="dialog=false" color="blue-grey" dark>Cancelar</v-btn>
                                 <v-btn @click="actualizar(tarea._id)" color="purple accent-3" dark>Actualizar</v-btn>
                             </template>
                     </v-card>
-                    </v-form>
+                    <form>
 
                 </v-dialog>
                 <!-- Componente de Diálogo para visualizar todos los datos-->
@@ -195,11 +213,10 @@
                                             </v-select>
                                         </v-col>
                                         <v-col cols="12" md="4">
-                                            <v-col cols="12" md="4">
-                                                <input type="date" v-model="tarea.fecha_nac">
-                                                {{tarea.fecha_nac}}
-                                                </input>
-                                            </v-col>
+                                            <v-text-field filled readonly v-model="tarea.fecha_nac"
+                                                label="Fecha de nacimiento" solo required>{{tarea.fecha_nac}}
+                                            </v-text-field>
+                                        </v-col>
                                         </v-col>
 
                                     </v-row>
@@ -209,7 +226,11 @@
                                                 label="N# de hijos" type="number" solo required>{{tarea.hijos}}
                                             </v-text-field>
                                         </v-col>
-                                        
+                                        <v-col cols="12" md="6">
+                                            <v-text-field filled readonly v-model="tarea.edad" label="Edad" type="text">
+                                            </v-text-field>
+                                        </v-col>
+
                                     </v-row>
                                 </v-container>
                         </v-card-text>
@@ -236,16 +257,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.6/jspdf.plugin.autotable.js"></script>
     <script>
-
+        let url = "http://localhost:3000"
         class Tarea {
-            constructor(cedula, nombre, apellido, profesion, hijos, img, fecha_nac) {
+            constructor(cedula, nombre, apellido, profesion, hijos, fecha_nac, edad) {
                 this.cedula = cedula;
                 this.nombre = nombre;
                 this.apellido = apellido;
                 this.profesion = profesion;
                 this.hijos = hijos;
-                this.img = img;
-                this.fecha_nac = fecha_nac
+                this.fecha_nac = fecha_nac,
+                    this.edad = edad;
+
             }
         }
         new Vue({
@@ -264,50 +286,83 @@
                     rules: [
                         value => !value || value.size < 512000 || 'Solo 500 KB',
                     ],
-                    fecha_nac: this.restarFecha(),
+                    //fecha_nac: this.restarFecha(),
                     menu: false,
                     modal: false,
                     menu2: false,
                     menu3: false,
-                    itemspdf:[
-                        {title:"1310793144",body:"javier",apellido:"sanchez"}
-                    ]
-                    
+
+                    errors: [],
+                    organizationRules: [
+                        (v) => !!v || "Cedula es obligatoria",
+                        (v) =>
+                            (v && v.length <= 10) ||
+                            "La cédula debe tener 10 digitos",
+                    ],
+                    edad: '',
+                    file: ''
+
                 }
             },
             created() {
                 this.mostrar()
             },
+
             methods: {
+
                 //crear pdf
                 exportPdf() {
+                    let tab = Object.values(this.tareas)
+                    let itemspdf = []
 
-                    
-                    var columns = [
-                        { title: "Cedula", dataKey: "title" },
-                        { title: "Nombre", dataKey: "body" },
-                        { title: "apellido", dataKey: "apellido" }
+                    tab.forEach(e => {
+                        let fn = e.fecha_nac.split('-')[0]
+                        let fecha = new Date();
+                        let anio = fecha.getFullYear();
+                        let ed = anio - fn
+                        e.edad = ed
+                        itemspdf.push(
+                            {
+                                cedula: e.cedula,
+                                nombre: e.nombre,
+                                apellido: e.apellido,
+                                profesion: e.profesion,
+                                estado_civil: e.estado_civil,
+                                fecha_nac: e.fecha_nac,
+                                hijos: e.hijos,
+                                edad: e.edad
+                            }
+                        )
+                    });
+
+                    let columns = [
+                        { title: "Cédula", dataKey: "cedula" },
+                        { title: "Nombre", dataKey: "nombre" },
+                        { title: "Apellido", dataKey: "apellido" },
+                        { title: "Profesión", dataKey: "profesion" },
+                        { title: "Estado Civil", dataKey: "estado_civil" },
+                        { title: "Fecha de nacimiento", dataKey: "fecha_nac" },
+                        { title: "N# Hijos", dataKey: "hijos" },
+                        { title: "Edad", dataKey: "edad" }
                     ];
 
-                    
                     let doc = new jsPDF({
                         orientation: "portrait",
                         unit: "in",
                         format: "letter"
                     });
-                    console.log(JSON.stringify(this.tareas))
-                    doc.text('To Do List', 40, 40);
-                    
+                    doc.text(20, 20, 'Hello landscape world!');
+
                     doc.autoTable({
                         columns,
-                        body: this.itemspdf,
+                        body: itemspdf,
                         margin: { left: 0.5, top: 1.25 }
                     });
-                    doc.save('todos.pdf');
+                    doc.save('prueba.pdf');
                 },
                 //MÉTODOS PARA EL CRUD
                 mostrar: function () {
-                    fetch('http://34.68.235.113:3000/tarea/obtener/', {
+                    fetch(url + '/tarea/obtener/', {
                         method: 'GET'
                     })
                         .then(res => res.json())
@@ -316,20 +371,12 @@
                         });
                 },
                 verTodo(id) {
-                    fetch('http://34.68.235.113:3000/tarea/obtener/' + id, {
+                    fetch(url + '/tarea/obtener/' + id, {
                         method: 'GET'
                     })
                         .then(res => res.json())
                         .then(data => {
-                            this.tareas = new Tarea(
-                                data.data.cedula,
-                                data.data.nombre,
-                                data.data.apellido,
-                                data.data.profesion,
-                                data.data.hijos,
-                                data.data.estado_civil,
-                                data.data.fecha_nac
-                            );
+                            this.tareas = data.data
                             this.edit = true;
                             this.tareaEditar = data._id;
 
@@ -337,6 +384,7 @@
                         .then(response => {
                             this.mostrar();
                         });
+
                     this.dialog2 = false;
                 },
                 restarFecha() {
@@ -348,15 +396,19 @@
                     let fecha = resta + '-' + mes + '-' + dia
                     return fecha
                 },
-                obtenerImagen(event) {
-                    console.log(event.target.files[0])
-                    this.img = event.target.files[0]
-                    //console.log(event)
-                    //this.tarea.img = file;
+
+                onSelect() {
+
+                    this.file = this.$refs.file.files[0];
                 },
                 addTarea() {
-                    console.log(this.tarea)
-                    fetch('http://34.68.235.113:3000/tarea/enviar', {
+                    const formData = new FormData();
+                    formData.append('file', this.file);
+                    let resul = ({
+                        file: formData,
+                        data: this.tarea
+                    })
+                    fetch(url + '/tarea/enviar', {
                         method: 'POST',
                         body: JSON.stringify(this.tarea),
                         headers: {
@@ -386,7 +438,7 @@
                         estado_civil: this.tarea.estado_civil
                     };
                     //console.log(parametros);                   
-                    fetch('http://34.68.235.113:3000/tarea/obtener/' + id, {
+                    fetch(url + '/tarea/obtener/' + id, {
                         method: 'GET'
                     })
                         .then(res => res.json())
@@ -409,23 +461,32 @@
                     console.log(this.tareaEditar)
                 },
                 actualizar: function (id) {
+                    len = Math.ceil(Math.log(this.tarea.cedula) / Math.LN10);
 
-                    fetch('http://34.68.235.113:3000/tarea/actualizar/' + id, {
-                        method: 'PUT',
-                        body: JSON.stringify(this.tarea),
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-type': 'application/json'
-                        }
-                    })
-                        .then(res => res.json())
-                        .then(data => {
-                            this.mostrar();
+                    if (len === 10) {
+                        fetch(url + '/tarea/actualizar/' + id, {
+                            method: 'PUT',
+                            body: JSON.stringify(this.tarea),
+                            headers: {
+                                'Accept': 'application/json',
+                                'Content-type': 'application/json'
+                            }
                         })
+                            .then(res => res.json())
+                            .then(data => {
+                                this.mostrar();
+                            })
 
 
-                    this.tarea = new Tarea();
-                    this.dialog = false;
+                        this.tarea = new Tarea();
+                        this.dialog = false;
+
+                    }
+                    this.errors = [];
+                    if (len < 10 || len > 10) {
+                        this.errors.push('La cédula tiene que ser de 10 difitos.');
+                    }
+
 
                 },
                 borrar: function (id) {
@@ -436,7 +497,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             //procedimiento borrar
-                            fetch('http://34.68.235.113:3000/tarea/eliminar/' + id, {
+                            fetch(url + '/tarea/eliminar/' + id, {
                                 method: 'DELETE',
                                 headers: {
                                     'Accept': 'application/json',
@@ -454,17 +515,6 @@
                     });
                 },
 
-                //Botones y formularios
-                // guardar: function () {
-                //     if (this.operacion == 'crear') {
-                //         this.addTarea();
-                //     }
-                //     if (this.operacion == 'editar') {
-                //         this.editar2(this.tarea._id);
-
-                //     }
-                //     this.dialog = false;
-                // },
                 formNuevo: function () {
                     this.dialog = true;
                     this.operacion = 'crear';
@@ -475,8 +525,15 @@
                     this.tarea.hijos = "";
                     this.tarea.estado_civil = "";
                     this.edit = false;
+                    let fecha = new Date();
+                    let anio = fecha.getFullYear() - 20;
+                    let mes = fecha.getMonth() + 1;
+                    let dia = fecha.getDate();
+                    let fecha_res = anio + '-' + mes + '-' + dia
+                    this.tarea.fecha_nac = fecha_res
+
                 },
-                formEditar: function (id, cedula, nombre, apellido, profesion, hijos, estado_civil) {
+                formEditar: function (id, cedula, nombre, apellido, profesion, hijos, estado_civil, fecha_nac) {
                     this.tarea._id = id;
                     this.tarea.cedula = cedula;
                     this.tarea.nombre = nombre;
@@ -484,11 +541,12 @@
                     this.tarea.profesion = profesion;
                     this.tarea.hijos = hijos;
                     this.tarea.estado_civil = estado_civil;
+                    this.tarea.fecha_nac = fecha_nac
                     this.dialog = true;
                     this.operacion = 'editar';
                     this.edit = true;
                 },
-                formVer: function (id, cedula, nombre, apellido, profesion, hijos, estado_civil) {
+                formVer: function (id, cedula, nombre, apellido, profesion, hijos, estado_civil, fecha_nac, edad) {
                     this.tarea._id = id;
                     this.tarea.cedula = cedula;
                     this.tarea.nombre = nombre;
@@ -496,8 +554,32 @@
                     this.tarea.profesion = profesion;
                     this.tarea.hijos = hijos;
                     this.tarea.estado_civil = estado_civil;
+                    this.tarea.fecha_nac = fecha_nac;
                     this.dialog2 = true;
-                }
+                    let fn = this.tarea.fecha_nac.split('-')[0]
+                    var fecha = new Date();
+                    var anio = fecha.getFullYear();
+                    let ed = anio - fn
+                    this.tarea.edad = ed
+                },
+                //validaciones
+                //validar formulario
+                checkForm: function () {
+                    let ced = JSON.stringify(this.tarea.cedula)
+
+                    if (ced.length === 12) {
+                        this.addTarea()
+
+                    }
+
+                    this.errors = [];
+                    if (ced.length < 12 || ced.length > 12) {
+                        this.errors.push('La cédula tiene que ser de 10 difitos.');
+                    }
+
+
+                },
+
             }
         });
         function soloLetras(e) {
@@ -518,6 +600,7 @@
                 return false;
             }
         }
+
     </script>
 </body>
 

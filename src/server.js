@@ -5,7 +5,7 @@ import router from "./rutas/index.ruta"
 const mongoose = require ('mongoose');
 const app = express();
 const http = require('http').Server(app);
-
+import multer from 'multer';
 
 app.use(cors())
 app.use(function(req, res, next) {
@@ -32,6 +32,9 @@ app.use(morgan('dev'));
 //iteraccion de tipo json
 app.use(json());
 // Midleware de rutas
+app.use(multer({
+    dest: 'public/img'
+}).single('file'));
 app.use('/',router)
 //hacemos de tipo public la carpeta public
 app.use(express.static(__dirname + '/public'));

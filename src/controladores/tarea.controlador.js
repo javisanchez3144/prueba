@@ -7,7 +7,21 @@ class Tarea {
         try {
             
             let resultado = await TareaModelo.find();
-            res.status(200).json({ ok: true, data:resultado })
+            let i=[]
+            resultado.forEach(x=>{
+                i.push({
+                    _id: x._id,
+                    fecha_nac: ((JSON.stringify(x.fecha_nac)).split('T')[0]).replace(/["']/g, ''),
+                    cedula: x.cedula,
+                    nombre: x.nombre,
+                    apellido: x.apellido,
+                    profesion: x.profesion,
+                    estado_civil: x.estado_civil,
+                    hijos: x.hijos
+                })
+            })
+            
+            res.status(200).json({ ok: true, data:i })
 
             
         } catch (e) {
@@ -38,11 +52,9 @@ class Tarea {
                 fecha_nac: req.body.fecha_nac,
                 profesion: req.body.profesion,
                 estado_civil: req.body.estado_civil,
-                hijos: req.body.hijos,
-                img: req.body.img
+                hijos: req.body.hijos
             }
-            
-            console.log(req.body)
+            //console.log(req.file)
             let resultado = new TareaModelo(datos);
             await resultado.save();
             res.status(200).json({ ok: true, observacion: 'tarea guardada' })
