@@ -62,7 +62,8 @@
                                         <v-btn class="error" fab dark small @click="borrar(tarea._id)">
                                             <v-icon>mdi-delete</v-icon>
                                         </v-btn>
-                                        <v-btn class="primary" fab dark small @click="formVer(tarea._id,
+                                        <v-btn class="primary" fab dark small @click="formVer(
+                                        tarea._id,
                                         tarea.cedula,
                                         tarea.nombre,
                                         tarea.apellido,
@@ -84,7 +85,7 @@
                     <v-card>
                         <v-card-title class="purple darken-4 white--text">Ingresar</v-card-title>
                         <v-card-text>
-                            <form @submit.prevent="addTarea" enctype="multipart/form-data">
+                            <v-form>
                                 <v-container>
 
                                     <v-row>
@@ -257,7 +258,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.6/jspdf.plugin.autotable.js"></script>
     <script>
-        let url = "http://localhost:3000"
+        let url = "http://34.68.235.113:3000/"
         class Tarea {
             constructor(cedula, nombre, apellido, profesion, hijos, fecha_nac, edad) {
                 this.cedula = cedula;
@@ -265,8 +266,8 @@
                 this.apellido = apellido;
                 this.profesion = profesion;
                 this.hijos = hijos;
-                this.fecha_nac = fecha_nac,
-                    this.edad = edad;
+                this.fecha_nac = fecha_nac;
+                this.edad = edad;
 
             }
         }
@@ -371,6 +372,7 @@
                         });
                 },
                 verTodo(id) {
+                    console.log("sssssss")
                     fetch(url + '/tarea/obtener/' + id, {
                         method: 'GET'
                     })
